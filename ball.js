@@ -1,34 +1,59 @@
 //The physics object in the scene
 class Ball {
-    constructor(x, y, size) {
-      this.pos = createVector(x, y);
-      this.vel = createVector(0, 0);
-      this.acc = createVector(0, 0);
-      this.size = size;
-    }
-    
-    update() {
-      this.acc.y += gravity;
-      this.pos.add(this.vel);
-      this.vel.add(this.acc);
-      this.acc.mult(0);
-    }
-    
-    draw(colliding) {
-      strokeWeight(this.size);
-      DEBUG ? 
-        colliding ? stroke(0, 255, 0) : stroke(0, 0, 255) : 
-        stroke(255);
-      point(this.pos.x, this.pos.y);
-    }
-    
-    collision(data) {
-      // this.vel.y = 0;
-      // this.pos.y -= data.dist;
-      // let force = createVector(0, data[0].grad);
-      // force.mult(data[0].dist);
-      // force.mult(10);
-      this.pos.y -= 10;
-      this.vel.y =0 ;
-    }
+  constructor(x, y, size) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, 0);
+    this.acc = createVector(0, 0);
+    this.size = size;
+    //A line from the balls position to (0, 0)
+    this.sensorLine = new Line(this.pos.x, this.pos.y, 0, 0);
   }
+
+  update() {
+    this.acc.y += gravity;
+    this.vel.mult(0.995);
+    this.pos.add(this.vel);
+    this.vel.add(this.acc);
+    this.acc.mult(0);
+    this.sensorLine.start.x = this.pos.x;
+    this.sensorLine.start.y = this.pos.y;
+  }
+
+  draw(colliding) {
+    strokeWeight(this.size);
+    DEBUG ?
+      colliding ? stroke(0, 255, 0) : stroke(0, 0, 255) :
+      stroke(255, 0, 255);
+    point(this.pos.x, this.pos.y);
+  }
+
+  //Determine if the ball is colliding with the polygon
+  collidingWith(polygon) {
+    let collData = [];
+    for (let i = 0; i < polygon.getVertexCount(); i++) {
+      //Look at the edges of the polygon
+      let v1 = polygon.getVertex(i);
+      let v2 = i < polygon.getVertexCount() - 1 ?
+        polygon.getVertex(i + 1) : polygon.getVertex(0);
+      let line = pointsToLine(v1, v2);
+      //Determine if the edge, and the sensor line intersect
+      let intersection = line.intersects(this.sensorLine);
+      //If so, record the data of this intersection
+      if (intersection) collData.push(intersection);
+    }
+    //If there is an odd number of intersections with the
+    //polygon's edges, then the point is within the polygon
+    if (collData.length % 2 == 1) return collData;
+    return false;
+  }
+
+  collision(intersections) {
+    intersections.sort((a, b) => {
+      a.mag() < b.mag();
+    });
+    let shortest = intersections[0];
+    this.pos.add(shortest);
+    shortest.mult(0.99);
+    this.acc.add(shortest);
+  }
+}
