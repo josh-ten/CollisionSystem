@@ -1,13 +1,13 @@
 let ball;
 let gravity = 0.5;
-let DEBUG = false;
+let DEBUG = true;
 let drop = true;
 let polygon;
 
 function setup() {
   // frameRate(20);
   createCanvas(window.innerWidth, window.innerHeight);
-  ball = new Ball(width*0.8, 0, 15);
+  ball = new Ball(random(width), 0, 15);
   polygon = new Polygon([
     createVector(0, height * 0.5),
     createVector(width * 0.5, height * 0.8),

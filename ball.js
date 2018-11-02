@@ -49,11 +49,12 @@ class Ball {
 
   collision(intersections) {
     intersections.sort((a, b) => {
-      a.mag() < b.mag();
+      a.mag() > b.mag();
     });
     let shortest = intersections[0];
-    this.pos.add(shortest);
-    shortest.mult(0.99);
+    let extra = shortest.mag() / this.size;
+    this.pos.add(shortest.copy().mult(extra));
+    shortest.mult(0.95);
     this.acc.add(shortest);
   }
 }
