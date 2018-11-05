@@ -1,7 +1,9 @@
-class Polygon {
-    constructor(defaultVertices) {
+class Polygon extends PhysicsObject {
+    constructor(fixed, origin, defaultVertices) {
+        super(origin.x, origin.y);
         this.vertices = [];
-        if (defaultVertices) this.vertices = defaultVertices;
+        this.fixed = fixed;
+        this.vertices = defaultVertices;
     }
 
     draw() {
@@ -12,17 +14,23 @@ class Polygon {
         } else {
             noStroke();
         }
+        let tVertices = super.translateVertices(this.pos, this.vertices);
         //Paint polygon edges
         beginShape();
-        this.vertices.forEach((v) => vertex(v.x, v.y));
-        if (this.vertices.length > 1)
-            vertex(this.vertices[0].x, this.vertices[0].y);
+        tVertices.forEach(v => vertex(v.x, v.y));
+        if (tVertices.length > 1)
+            vertex(tVertices[0].x, tVertices[0].y);
         endShape();
         //Paint polygon vertices
         if (DEBUG) {
             stroke(255, 100, 100);
-            this.vertices.forEach((v) => point(v.x, v.y));
+            tVertices.forEach((v) => point(v.x, v.y));
         }
+    }
+    
+    update() {
+        this.acc.y -= gravity / 2;
+        super.kinematics();
     }
 
     addVertex(v) {
@@ -34,5 +42,9 @@ class Polygon {
     }
     getVertexCount() {
         return this.vertices.length;
+    }
+
+    isFixed() {
+        return this.fixed;
     }
 }

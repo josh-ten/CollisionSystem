@@ -1,20 +1,14 @@
 //The physics object in the scene
-class Ball {
+class Ball extends PhysicsObject {
   constructor(x, y, size) {
-    this.pos = createVector(x, y);
-    this.vel = createVector(0, 0);
-    this.acc = createVector(0, 0);
+    super(x, y);
     this.size = size;
     //A line from the balls position to (0, 0)
     this.sensorLine = new Line(this.pos.x, this.pos.y, 0, 0);
   }
 
   update() {
-    this.acc.y += gravity;
-    this.vel.mult(0.995);
-    this.pos.add(this.vel);
-    this.vel.add(this.acc);
-    this.acc.mult(0);
+    super.kinematics();
     this.sensorLine.start.x = this.pos.x;
     this.sensorLine.start.y = this.pos.y;
   }
@@ -22,7 +16,7 @@ class Ball {
   draw(colliding) {
     strokeWeight(this.size);
     DEBUG ?
-      colliding ? stroke(0, 255, 0) : stroke(0, 0, 255) :
+      colliding ? stroke(0, 255, 0) : stroke(255, 130, 255) :
       stroke(255, 0, 255);
     point(this.pos.x, this.pos.y);
   }
